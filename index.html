@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chaotic Eyeballs with Random Pupils</title>
+    <style>
+        /* General body styling */
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-image: url('/Users/macey/Desktop/bg.png');
+            background-repeat: repeat;
+            cursor: url('/Users/macey/Desktop/cursor2.png') 16 16, auto !important; /* Custom cursor with size adjustment */
+        }
+
+        /* Eyeball container with a beige background and border */
+        .eyeball {
+            position: absolute;
+            background-color: #f1e7e1; /* Beige-white background */
+            border: 1px solid #d4af37; /* Goldish border */
+            border-radius: 50%; /* Makes it round */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            overflow: hidden; /* Ensures pupil doesn’t move outside the eyeball */
+            transition: opacity 5s ease, transform 5s ease; /* Smooth fade and slight shrink on hover */
+        }
+
+        /* On hover, fade out and shrink slightly */
+        .eyeball:hover {
+           opacity: 0;
+           transform: scale(0.9); /* Adds a slight shrinking effect */
+        }
+
+        /* Reflection styling */
+        .reflection {
+            position: absolute;
+            top: 15%; /* Position reflection near top-left */
+            left: 15%;
+            width: 15%; /* Size relative to eyeball */
+            height: 15%;
+            background-color: rgba(255, 255, 255, 0.7); /* White with transparency */
+            border-radius: 50%;
+            box-shadow: 0px 0px 8px rgba(255, 255, 255, 0.6); /* Soft glow effect */
+            pointer-events: none; /* Reflection should not be interactive */
+        }
+
+        /* Pupil styling */
+        .pupil {
+            background-size: cover;
+            border-radius: 50%;
+            border: 1px solid black;
+            position: relative; /* Positioned relative to the eyeball */
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Highlight secret link pupils */
+        .secret-link {
+            border: 5px solid red;
+            border-radius: 50%;
+            box-shadow: 0 0 5px yellow;
+        }
+    </style>
+</head>
+<body>
+
+<script>
+    // Configuration
+    const numPupils = 200; // Total number of eyeballs
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const maxOffset = 30; // Allows pupils to appear offscreen by this amount
+
+    // Array of pupil images
+    const pupilImages = [
+        '/Users/macey/Desktop/pupil2.png',
+        '/Users/macey/Desktop/pupil3.png',
+        '/Users/macey/Desktop/pupil4.png',
+        '/Users/macey/Desktop/pupil5.png',
+        '/Users/macey/Desktop/pupil6.png'
+    ];
+
+    // Helper function to generate random sizes within a range
+    function getRandomSize(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // Create each eyeball with a pupil, random layout, personality, and chaotic movement patterns
+    for (let i = 0; i < numPupils; i++) {
+        const eyeballContainer = document.createElement('div');
+        eyeballContainer.classList.add('eyeball');
+
+        // Set a random size for each eyeball between 40px and 70px
+        const eyeballSize = getRandomSize(40, 150);
+        eyeballContainer.style.width = `${eyeballSize}px`;
+        eyeballContainer.style.height = `${eyeballSize}px`;
+
+        // Create the reflection element
+        const reflection = document.createElement('div');
+        reflection.classList.add('reflection');
+        eyeballContainer.appendChild(reflection); // Add reflection to the eyeball
+
+        const pupil = document.createElement('div');
+        pupil.classList.add('pupil');
+
+        // Set a random pupil image
+        const randomImage = pupilImages[Math.floor(Math.random() * pupilImages.length)];
+        pupil.style.backgroundImage = `url(${randomImage})`;
+
+        // Set a random size for each pupil relative to the eyeball size
+        const pupilSize = eyeballSize * 0.6; // Pupil is 60% of eyeball size
+        pupil.style.width = `${pupilSize}px`;
+        pupil.style.height = `${pupilSize}px`;
+
+        // Random position within the viewport plus some offset
+        eyeballContainer.style.left = Math.random() * (screenWidth + 2 * maxOffset) - maxOffset + 'px';
+        eyeballContainer.style.top = Math.random() * (screenHeight + 2 * maxOffset) - maxOffset + 'px';
+
+        // Assign random characteristics for movement radius, delay factor, and chaotic angle adjustments
+        pupil.dataset.maxMoveRadius = 3 + Math.random() * 10; // Different max move radius per pupil
+        pupil.dataset.delayFactor = 0.05 + Math.random() * 0.15; // Random delay factor for tracking
+        pupil.dataset.jitter = Math.random() * 5; // Each pupil has a slight jitter amount
+        pupil.dataset.angleOffset = (Math.random() - 0.5) * 0.2; // Each pupil’s angle changes slightly each move
+
+        // Randomly assign a few as secret links
+        if (Math.random() < 0.02) { // Roughly 2% chance to be a secret link
+            pupil.classList.add('secret-link');
+            eyeballContainer.onclick = () => alert('You found a secret link!');
+        }
+
+        eyeballContainer.appendChild(pupil);
+        document.body.appendChild(eyeballContainer);
+    }
+
+    // Function to update all pupils' positions with chaotic movement patterns
+    document.addEventListener('mousemove', (event) => {
+        document.querySelectorAll('.pupil').forEach(pupil => {
+            const pupilRect = pupil.parentElement.getBoundingClientRect();
+            const pupilCenterX = pupilRect.left + pupilRect.width / 2;
+            const pupilCenterY = pupilRect.top + pupilRect.height / 2;
+
+            // Calculate offset between cursor and each pupil, and add a jitter
+            let dx = event.clientX - pupilCenterX + (Math.random() - 0.5) * pupil.dataset.jitter;
+            let dy = event.clientY - pupilCenterY + (Math.random() - 0.5) * pupil.dataset.jitter;
+
+            // Retrieve each pupil's unique maxMoveRadius, delayFactor, and angleOffset
+            const maxMoveRadius = parseFloat(pupil.dataset.maxMoveRadius);
+            const delayFactor = parseFloat(pupil.dataset.delayFactor);
+            const angleOffset = parseFloat(pupil.dataset.angleOffset);
+
+            // Calculate distance and limit it within maxMoveRadius
+            let distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance > maxMoveRadius) {
+                let angle = Math.atan2(dy, dx);
+                angle += angleOffset; // Adjust angle with each move for chaos
+                dx = Math.cos(angle) * maxMoveRadius;
+                dy = Math.sin(angle) * maxMoveRadius;
+            }
+
+            // Apply a slight delay based on each pupil's delay factor
+            pupil.style.transition = `transform ${delayFactor}s ease-out`;
+            pupil.style.transform = `translate(${dx}px, ${dy}px)`;
+        });
+    });
+</script>
+
+</body>
+</html>
