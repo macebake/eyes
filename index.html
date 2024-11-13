@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chaotic Eyeballs with Random Pupils</title>
+    <title>be not afraid</title>
+    <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
     <style>
         /* General body styling */
         body {
@@ -11,7 +12,15 @@
             overflow: hidden;
             background-image: url('assets/bg.png');
             background-repeat: repeat;
-            cursor: url('assets/cursor.png') 16 16, auto !important; /* Custom cursor with size adjustment */
+            background-size: 25%;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); /* Creates columns for eyeballs */
+            grid-auto-rows: minmax(80px, auto); /* Creates rows for eyeballs */
+            gap: 50px; /* Adds space between eyeballs to reduce full overlap */
+        }
+
+        *, *:hover, *:active, *:focus {
+            cursor: url('assets/cursor.png') 27 22, auto !important; /* Custom cursor applied to all elements */
         }
 
         /* Eyeball container with a beige background and border */
@@ -26,6 +35,7 @@
             z-index: 1;
             overflow: hidden; /* Ensures pupil doesn’t move outside the eyeball */
             transition: opacity 5s ease, transform 5s ease; /* Smooth fade and slight shrink on hover */
+            margin: 5px; /* Adds a bit of space around each eyeball to control overlap */
         }
 
         /* On hover, fade out and shrink slightly */
@@ -56,22 +66,16 @@
             transition: transform 0.1s ease-out;
         }
 
-        /* Highlight secret link pupils */
-        .secret-link {
-            border: 1px solid yellow;
-            border-radius: 50%;
-            box-shadow: 0 0 5px yellow;
-        }
     </style>
 </head>
 <body>
 
 <script>
     // Configuration
-    const numPupils = 200; // Total number of eyeballs
+    const numPupils = 140; // Total number of eyeballs
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
-    const maxOffset = 30; // Allows pupils to appear offscreen by this amount
+    const maxOffset = 10; // Allows pupils to appear offscreen by this amount
 
     // Array of pupil images
     const pupilImages = [
@@ -85,6 +89,17 @@
     function getRandomSize(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
+
+    const alerts = [
+        'be not afraid',
+        'presence detected',
+        'where are we',
+        'turn back',
+        'sacrifice insufficient',
+        'warning: praxis deviation detected',
+        'infract̶̟̹̦͔̲͆̓ion logged',
+        'revelation sequence aborted'
+    ];
 
     // Create each eyeball with a pupil, random layout, personality, and chaotic movement patterns
     for (let i = 0; i < numPupils; i++) {
@@ -113,20 +128,23 @@
         pupil.style.width = `${pupilSize}px`;
         pupil.style.height = `${pupilSize}px`;
 
-        // Random position within the viewport plus some offset
-        eyeballContainer.style.left = Math.random() * (screenWidth + 2 * maxOffset) - maxOffset + 'px';
-        eyeballContainer.style.top = Math.random() * (screenHeight + 2 * maxOffset) - maxOffset + 'px';
+        // Set random position within the viewport plus a small offset
+        eyeballContainer.style.left = Math.random() * screenWidth + 'px';
+        eyeballContainer.style.top = Math.random() * screenHeight + 'px';
+
+        // Calculate random position within viewport, considering eyeball size and offset
+        eyeballContainer.style.left = Math.random() * (screenWidth - eyeballSize) + (Math.random() < 0.5 ? -maxOffset : maxOffset) + 'px';
+        eyeballContainer.style.top = Math.random() * (screenHeight - eyeballSize) + (Math.random() < 0.5 ? -maxOffset : maxOffset) + 'px';
 
         // Assign random characteristics for movement radius, delay factor, and chaotic angle adjustments
-        pupil.dataset.maxMoveRadius = 3 + Math.random() * 10; // Different max move radius per pupil
+        pupil.dataset.maxMoveRadius = 5 + Math.random() * 10; // Different max move radius per pupil
         pupil.dataset.delayFactor = 0.05 + Math.random() * 0.15; // Random delay factor for tracking
         pupil.dataset.jitter = Math.random() * 5; // Each pupil has a slight jitter amount
         pupil.dataset.angleOffset = (Math.random() - 0.5) * 0.2; // Each pupil’s angle changes slightly each move
 
-        // Randomly assign a few as secret links
-        if (Math.random() < 0.02) { // Roughly 2% chance to be a secret link
-            pupil.classList.add('secret-link');
-            eyeballContainer.onclick = () => alert('You found a secret link!');
+        if (Math.random() < 0.25) {
+            const randomAlert = alerts[Math.floor(Math.random() * alerts.length)];
+            pupil.onclick = () => alert(randomAlert);
         }
 
         eyeballContainer.appendChild(pupil);
